@@ -4,15 +4,13 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Drawing;
 
 namespace Gomoku
 {
     class Board
     {
-        private Game game = new Game();
 
-        private static readonly int NODE_COUNT = 9;
+        public static readonly int NODE_COUNT = 10;
 
         private static readonly Point NO_MATCH_NODE = new Point(-1, -1);
 
@@ -43,6 +41,8 @@ namespace Gomoku
                 return false;
 
             // TODO: 如果有的話，檢查是有已經有棋子存在
+            if (pieces[nodeId.X, nodeId.Y] != null)
+                return false;
 
             return true;
         }

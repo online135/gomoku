@@ -12,6 +12,9 @@ namespace Gomoku
 
         private PieceType currentPlayer = PieceType.BLACK;
 
+        private PieceType winner = PieceType.NONE;
+        public PieceType Winner { get { return winner; } }
+
         public bool CanBePlaced(int x, int y)
         {
             return board.CanBePlaced(x, y);
@@ -22,8 +25,10 @@ namespace Gomoku
             Piece piece = board.PlaceAPiece(x, y, currentPlayer);
             if (piece != null)
             {
-                this.Controls.Add(piece);
+                // 檢查是否現在下棋的人獲勝
+                CheckWinner();
 
+                // 交換選手
                 if (currentPlayer == PieceType.BLACK)
                     currentPlayer = PieceType.WHITE;
                 else if (currentPlayer == PieceType.WHITE)
@@ -37,7 +42,53 @@ namespace Gomoku
 
         private void CheckWinner()
         {
+            int centerX = board.LastPlacedNode.X;
+            int centerY = board.LastPlacedNode.Y;
 
+            // 檢查八個不同方向
+            for (int xDir = -1; xDir <= 1; xDir++)
+            {
+                for (int yDir = -1; yDir <= 1; yDir++)
+                {
+                    // 排除中間的情況
+                    if (xDir == 0 && yDir == 0)
+                        continue;
+
+                    // 紀錄現在看到幾顆相同的棋子
+                    int count = 1;
+                    int count2 = 0;
+                    while (count < 5)
+                    {
+                        int targetX = centerX + count * xDir;
+                        int targetY = centerY + count * yDir;
+
+                        // 檢查顏色是否相同
+                        if (targetX < 0 || targetX > Board.NODE_COUNT ||
+                            targetY < 0 || targetY > Board.NODE_COUNT ||
+                            board.GetPieceType(targetX, targetY) != currentPlayer)
+                            break;
+                        count++;
+                    }
+
+                    while (count2 < 5)
+                    {
+                        int targetX = centerX - count2 * xDir;
+                        int targetY = centerY - count2 * yDir;
+
+                        if (targetX < 0 || targetX >= Board.NODE_COUNT ||
+                            targetY < 0 || targetY >= Board.NODE_COUNT ||
+                            board.GetPieceType(targetX, targetY) != currentPlayer)
+                        {
+                            break;
+                        }
+                        count2++;
+                    }
+
+                    // 檢查是否看到五顆棋子
+                    if (count + count2 >= 5)
+                        winner = currentPlayer;
+                }
+            }
         }
     }
 }
